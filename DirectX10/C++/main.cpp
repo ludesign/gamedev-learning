@@ -5,6 +5,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#define APP_NAME L"Learn to Program Windows"
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
@@ -28,10 +30,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	}
 
 	// Create the window.
-	HWND hwnd = CreateWindowEx(
+	HWND hWnd = CreateWindowEx(
 		0,                              // Optional window styles.
 		CLASS_NAME,                     // Window class
-		L"Learn to Program Windows",    // Window text
+		APP_NAME,    // Window text
 		WS_OVERLAPPEDWINDOW,            // Window style
 		// Size and position
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
@@ -42,12 +44,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	);
 
 	// Terminate if window coudn't be created
-	if (hwnd == NULL) {
+	if (hWnd == NULL) {
 		return 0;
 	}
 
 	// Otherwise visualize the created window
-	ShowWindow(hwnd, nCmdShow);
+	ShowWindow(hWnd, nCmdShow);
 
 	// Run the message loop and listen for user and system messages
 	MSG msg = {};
@@ -66,23 +68,32 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 }
 
 // Handles messages passed to our window by the OS (either user or os messages)
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
 		case WM_DESTROY: { // Windows must be destroyed, program is terminated
 			PostQuitMessage(0);
 		}
 		return 0;
 
+		case WM_CLOSE: {
+			int msgBoxId;
+			if ((msgBoxId = MessageBox(hWnd, L"Quit?", APP_NAME, MB_OKCANCEL)) == IDOK) {
+				DestroyWindow(hWnd);
+			}
+		}
+		return 0;
+
 		case WM_PAINT: { // OS will draw paint the window
 			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(hwnd, &ps);
+			HDC hdc = BeginPaint(hWnd, &ps);
 
 			FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
-			EndPaint(hwnd, &ps);
+			
+			EndPaint(hWnd, &ps);
 		}
 		return 0;
 	}
 
 	// fallback to default windows procedure for all non catched cases
-	return DefWindowProc(hwnd, uMsg, wParam, lParam);
+	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
