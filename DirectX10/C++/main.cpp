@@ -64,8 +64,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 		}
 	}
 
-	// OS does not care what we return to it
-	return 0;
+	// OS does not care what we return to it but let's follow the convention and return the exit code given by WM_QUIT
+	return static_cast<int>(msg.wParam);
 }
 
 // Handles messages passed to our window by the OS (either user or os messages)
