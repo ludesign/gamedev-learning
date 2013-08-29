@@ -14,16 +14,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	const wchar_t CLASS_NAME[]  = L"kutsuu3D";
 
 	// Null structure members
-	WNDCLASS wc = {};
+	WNDCLASSEX wc = {};
 
 	// Assign windows procedure callback, instance and set class name for our window
+	wc.cbSize        = sizeof(WNDCLASSEX);
 	wc.lpfnWndProc   = WindowProc;
 	wc.hInstance     = hInstance;
 	wc.lpszClassName = CLASS_NAME;
 
 	// Try to register our window class
 	BOOL regClass;
-	regClass = RegisterClass(&wc);
+	regClass = RegisterClassEx(&wc);
 	if (!regClass) {
 		// Maybe calling GetLastError to get details on the error
 		return 0;
