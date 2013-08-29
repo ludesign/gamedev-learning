@@ -20,7 +20,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	wc.lpszClassName = CLASS_NAME;
 
 	// Try to register our window class
-	RegisterClass(&wc);
+	BOOL regClass;
+	regClass = RegisterClass(&wc);
+	if (!regClass) {
+		// Maybe calling GetLastError to get details on the error
+		return 0;
+	}
 
 	// Create the window.
 	HWND hwnd = CreateWindowEx(
@@ -46,9 +51,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 	// Run the message loop and listen for user and system messages
 	MSG msg = {};
-	while (GetMessage(&msg, NULL, 0, 0)) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+	BOOL bRet;
+	// Because GetMessage returns non zero value if message is not WM_QUIT, zero if it is WM_QUIT and -1 if an error occur.
+	while ((bRet = GetMessage(&msg, NULL, 0, 0)) != 0) {
+		// @Note so far we do not care of error handling
+		if (bRet != -1) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
 	}
 
 	// OS does not care what we return to it
