@@ -8,19 +8,21 @@
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
-	// Register the window class.
+	// Register the window class. Unique thru our application
 	const wchar_t CLASS_NAME[]  = L"kutsuu3D";
 
+	// Null structure members
 	WNDCLASS wc = {};
 
+	// Assign windows procedure callback, instance and set class name for our window
 	wc.lpfnWndProc   = WindowProc;
 	wc.hInstance     = hInstance;
 	wc.lpszClassName = CLASS_NAME;
 
+	// Try to register our window class
 	RegisterClass(&wc);
 
 	// Create the window.
-
 	HWND hwnd = CreateWindowEx(
 		0,                              // Optional window styles.
 		CLASS_NAME,                     // Window class
@@ -34,30 +36,34 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 		NULL        // Additional application data
 	);
 
+	// Terminate if window coudn't be created
 	if (hwnd == NULL) {
 		return 0;
 	}
 
+	// Otherwise visualize the created window
 	ShowWindow(hwnd, nCmdShow);
 
-	// Run the message loop.
+	// Run the message loop and listen for user and system messages
 	MSG msg = {};
 	while (GetMessage(&msg, NULL, 0, 0)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
 
+	// OS does not care what we return to it
 	return 0;
 }
 
+// Handles messages passed to our window by the OS (either user or os messages)
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
-		case WM_DESTROY: {
+		case WM_DESTROY: { // Windows must be destroyed, program is terminated
 			PostQuitMessage(0);
 		}
 		return 0;
 
-		case WM_PAINT: {
+		case WM_PAINT: { // OS will draw paint the window
 			PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(hwnd, &ps);
 
@@ -67,5 +73,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 		return 0;
 	}
 
+	// fallback to default windows procedure for all non catched cases
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
