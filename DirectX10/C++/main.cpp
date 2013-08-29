@@ -52,6 +52,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	// Otherwise visualize the created window
 	ShowWindow(hWnd, nCmdShow);
 
+	/*
 	// Run the message loop and listen for user and system messages
 	MSG msg = {};
 	BOOL bRet;
@@ -61,6 +62,23 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 		if (bRet != -1) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+		}
+	}
+	*/
+
+	// Because GetMessage() is blocking and we are going to initialize DirectX soon, we need something faster, PeekMessage() to the rescue
+	MSG msg = {};
+	BOOL bIsRunning = FALSE;
+	while (!bIsRunning) {
+		while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+
+			// If about quit time...
+			if (msg.message == WM_QUIT) {
+				bIsRunning = TRUE;
+				break;
+			}
 		}
 	}
 
