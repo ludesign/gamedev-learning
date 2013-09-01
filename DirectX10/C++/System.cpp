@@ -23,14 +23,14 @@ namespace gdl {
 
 		// Try to register our window class
 		BOOL regClass;
-		regClass = RegisterClassEx(&wc);
+		regClass = ::RegisterClassEx(&wc);
 		if (!regClass) {
 			// Maybe calling GetLastError to get details on the error
 			return false;
 		}
 
 		// Create the window.
-		HWND hWnd = CreateWindowEx(
+		HWND hWnd = ::CreateWindowEx(
 			0,                              // Optional window styles.
 			className,                     // Window class
 			m_sAppName,   				// Window text
@@ -49,9 +49,9 @@ namespace gdl {
 		}
 
 		// Otherwise visualize the created window
-		ShowWindow(hWnd, nCmdShow);
-		SetForegroundWindow(hWnd);
-		SetFocus(hWnd);
+		::ShowWindow(hWnd, nCmdShow);
+		::SetForegroundWindow(hWnd);
+		::SetFocus(hWnd);
 
 		return true;
 	}
@@ -62,9 +62,9 @@ namespace gdl {
 		MSG msg = {};
 		BOOL bIsRunning = FALSE;
 		while (!bIsRunning) {
-			while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE)) {
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
+			while (::PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE)) {
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
 
 				// If about quit time...
 				if (msg.message == WM_QUIT) {
@@ -83,33 +83,33 @@ namespace gdl {
 	LRESULT CALLBACK System::MessageProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		switch (uMsg) {
 			case WM_DESTROY: { // Windows must be destroyed, program is terminated
-				PostQuitMessage(0);
+				::PostQuitMessage(0);
 			}
 			return 0;
 
 			case WM_CLOSE: {
 				int msgBoxId;
 				if ((msgBoxId = MessageBox(hWnd, L"Quit?", L"...", MB_OKCANCEL)) == IDOK) {
-					DestroyWindow(hWnd);
+					::DestroyWindow(hWnd);
 				}
 			}
 			return 0;
 
 			case WM_PAINT: { // OS will draw paint the window
 				PAINTSTRUCT ps;
-				HDC hdc = BeginPaint(hWnd, &ps);
+				HDC hdc = ::BeginPaint(hWnd, &ps);
 
-				FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
+				::FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
 			
-				TextOut(hdc, 10, 10, L"Hallo!", 6);
+				::TextOut(hdc, 10, 10, L"Hallo!", 6);
 
-				EndPaint(hWnd, &ps);
+				::EndPaint(hWnd, &ps);
 			}
 			return 0;
 		}
 
 		// fallback to default windows procedure for all non catched cases
-		return DefWindowProc(hWnd, uMsg, wParam, lParam);
+		return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
 	}
 
 	// Handle windows creation and pass any other events to MessageProc
@@ -118,16 +118,16 @@ namespace gdl {
 		if (uMsg == WM_CREATE) {
 			CREATESTRUCT *pStruct = (CREATESTRUCT *)lParam;
 			pSys = (System *)pStruct->lpCreateParams;
-			SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pSys);
+			::SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pSys);
 			pSys->m_hWnd = hWnd;
 		} else {
-			pSys = (System *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			pSys = (System *)::GetWindowLongPtr(hWnd, GWLP_USERDATA);
 		}
 
 		if (pSys) {
 			return pSys->MessageProc(hWnd, uMsg, wParam, lParam);
 		} else {
-			return DefWindowProc(hWnd, uMsg, wParam, lParam); 
+			return ::DefWindowProc(hWnd, uMsg, wParam, lParam); 
 		}
 	}
 }
