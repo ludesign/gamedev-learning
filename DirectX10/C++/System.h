@@ -9,6 +9,7 @@ namespace gdl {
 		void Run();
 		void Shutdown();
 
+		LRESULT CALLBACK MessageProc(HWND, UINT, WPARAM, LPARAM);
 		static LRESULT CALLBACK WindowProc(HWND, UINT, WPARAM, LPARAM);
 
 	private:

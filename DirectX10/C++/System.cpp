@@ -40,7 +40,7 @@ namespace gdl {
 			NULL,       // Parent window    
 			NULL,       // Menu
 			m_hInstance,  // Instance handle
-			NULL        // Additional application data
+			this        // Additional application data
 		);
 
 		// Terminate if window coudn't be created
@@ -80,7 +80,7 @@ namespace gdl {
 	}
 
 	// Handles messages passed to our window by the OS (either user or os messages)
-	LRESULT CALLBACK System::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+	LRESULT CALLBACK System::MessageProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		switch (uMsg) {
 			case WM_DESTROY: { // Windows must be destroyed, program is terminated
 				PostQuitMessage(0);
@@ -110,5 +110,24 @@ namespace gdl {
 
 		// fallback to default windows procedure for all non catched cases
 		return DefWindowProc(hWnd, uMsg, wParam, lParam);
+	}
+
+	// Handle windows creation and pass any other events to MessageProc
+	LRESULT CALLBACK System::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+		System *pSys = NULL;
+		if (uMsg == WM_CREATE) {
+			CREATESTRUCT *pStruct = (CREATESTRUCT *)lParam;
+			pSys = (System *)pStruct->lpCreateParams;
+			SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pSys);
+			pSys->m_hWnd = hWnd;
+		} else {
+			pSys = (System *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+		}
+
+		if (pSys) {
+			return pSys->MessageProc(hWnd, uMsg, wParam, lParam);
+		} else {
+			return DefWindowProc(hWnd, uMsg, wParam, lParam); 
+		}
 	}
 }
