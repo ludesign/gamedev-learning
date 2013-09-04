@@ -7,11 +7,13 @@ namespace gdl {
 	}
 
 	System::~System() {
-
+		::DestroyWindow(m_hWnd);
 	}
 
 	bool System::Initialize(int nCmdShow, const wchar_t className[]) {
 		// Register the window class. Unique thru our application
+		m_className = className;
+
 		// Null structure members
 		WNDCLASSEX wc = {};
 
@@ -19,7 +21,7 @@ namespace gdl {
 		wc.cbSize        = sizeof(WNDCLASSEX);
 		wc.lpfnWndProc   = WindowProc;
 		wc.hInstance     = m_hInstance;
-		wc.lpszClassName = className;
+		wc.lpszClassName = m_className;
 
 		// Try to register our window class
 		BOOL regClass;
@@ -73,17 +75,24 @@ namespace gdl {
 				}
 			}
 		}
+		m_exitCode = msg.wParam;
 	}
 
 	void System::Shutdown() {
+		// do some cleanup
+		::CloseWindow(m_hWnd);
+		::UnregisterClass(m_className, m_hInstance);
+	}
 
+	UINT_PTR System::getExitCode() {
+		return m_exitCode;
 	}
 
 	// Handles messages passed to our window by the OS (either user or os messages)
 	LRESULT CALLBACK System::MessageProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		switch (uMsg) {
 			case WM_DESTROY: { // Windows must be destroyed, program is terminated
-				::PostQuitMessage(0);
+				::PostQuitMessage(0); // m_exitCode will contain the value passed to PostQuitMessage
 			}
 			return 0;
 
@@ -106,6 +115,11 @@ namespace gdl {
 				::EndPaint(hWnd, &ps);
 			}
 			return 0;
+
+			case WM_CREATE: {
+				HWND hWndButton = CreateWindowEx(NULL, L"BUTTON", L"Nice", WS_TABSTOP|WS_VISIBLE|WS_CHILD|BS_DEFPUSHBUTTON, 50, 100, 100, 40, m_hWnd, NULL, m_hInstance, NULL);
+			}
+			return 0;
 		}
 
 		// fallback to default windows procedure for all non catched cases
@@ -115,7 +129,7 @@ namespace gdl {
 	// Handle windows creation and pass any other events to MessageProc
 	LRESULT CALLBACK System::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		System *pSys = NULL;
-		if (uMsg == WM_CREATE) {
+		if (uMsg == WM_NCCREATE) { // WM_NCCREATE requires TRUE to be returned in order to proceed
 			CREATESTRUCT *pStruct = (CREATESTRUCT *)lParam;
 			pSys = (System *)pStruct->lpCreateParams;
 			::SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pSys);

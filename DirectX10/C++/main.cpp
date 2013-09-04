@@ -19,8 +19,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	}
 	sys->Shutdown();
 
+	// obtain exit code and release memory
+	UINT_PTR ret = sys->getExitCode();
+	delete sys;
+
 	// OS does not care what we return to it but let's follow the convention and return the exit code given by WM_QUIT
 	// return static_cast<int>(msg.wParam);
-	return 0;
+	return static_cast<int>(ret);
 }
 
